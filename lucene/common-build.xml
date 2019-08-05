@@ -1039,7 +1039,12 @@
         </condition>
         <property name="tests.iters" value="" />
         <property name="tests.dups"  value="1" />
-        <property name="tests.useSecurityManager"  value="true" />
+
+	<!-- AMAZON: not sure why this was necessary, but it was causing this error for all tests:
+        
+             Throwable #1: java.lang.NoClassDefFoundError: Could not initialize class org.apache.lucene.codecs.Codec$Holder
+        -->
+        <!-- <property name="tests.useSecurityManager"  value="true" /> -->
 
         <property name="tests.heapdump.args" value=""/>
 

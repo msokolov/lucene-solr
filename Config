@@ -1,0 +1,65 @@
+# -*-perl-*-
+
+package.Lucene = {
+    interfaces = (8.x);
+    deploy = {
+        generic = true;
+    };
+
+    build-environment = {
+        chroot = basic;
+        network-access = open;
+    };
+
+    build-system = happytrails;
+
+    build-tools = {
+        8.x = {
+            JDK8 = 1.0;
+            HappyTrails = 3.3;
+            Ivy = 2.4.0;
+            JakartaCommons-codec = 1.10;
+        };
+    };
+
+    targets = {
+        lucene-memory-8.x = { type = javalibrary; }
+        lucene-spatial-extras-8.x = { type = javalibrary; };
+        lucene-backward-codecs-8.x = { type = javalibrary; };
+        lucene-expressions-8.x = { type = javalibrary; };
+        lucene-codecs-8.x = { type = javalibrary; };
+        lucene-test-framework-8.x = { type = javalibrary; };
+        lucene-queryparser-8.x = { type = javalibrary; };
+        lucene-analyzers-kuromoji-8.x = { type = javalibrary; };
+        lucene-analyzers-phonetic-8.x = { type = javalibrary; };
+        lucene-analyzers-common-8.x = { type = javalibrary; };
+        lucene-suggest-8.x = { type = javalibrary; };
+        lucene-join-8.x = { type = javalibrary; };
+        lucene-sandbox-8.x = { type = javalibrary; };
+        lucene-spatial3d-8.x = { type = javalibrary; };
+        lucene-classification-8.x = { type = javalibrary; };
+        lucene-core-8.x = { type = javalibrary; };
+        lucene-misc-8.x = { type = javalibrary; };
+        lucene-grouping-8.x = { type = javalibrary; };
+        lucene-highlighter-8.x = { type = javalibrary; };
+        lucene-queries-8.x = { type = javalibrary; };
+        lucene-replicator-8.x = { type = javalibrary; };
+        lucene-analyzers-morfologik-8.x = { type = javalibrary; };
+        lucene-analyzers-smartcn-8.x = { type = javalibrary; };
+        lucene-analyzers-stempel-8.x = { type = javalibrary; };
+        lucene-analyzers-icu-8.x = { type = javalibrary; };
+        lucene-analyzers-uima-8.x = { type = javalibrary; };
+        lucene-facet-8.x = { type = javalibrary; };
+        lucene-spatial-8.x = { type = javalibrary; };
+        lucene-benchmark-8.x = { type = javalibrary; };
+    };
+
+    third-party-configuration = {
+        thirdPartyName       = "lucene";
+        thirdPartyVersion    = "8.x";
+        repository           = "raw";
+        licenseType          = ("Apache-2.0");
+        licenseFile          = "lucene/LICENSE.txt";
+    };
+
+};

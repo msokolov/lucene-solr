@@ -36,6 +36,9 @@ grant {
   permission java.io.FilePermission "${clover.db.dir}${/}-", "read,write,delete";
   permission java.io.FilePermission "${tests.linedocsfile}", "read";
 
+  // TODO: this is a workaround for the right fix -- we are somehow not threading junit4.childvm.cwd, or so, correctly:
+  permission java.io.FilePermission "./temp", "read,write,delete";
+
   // misc HardlinkCopyDirectoryWrapper needs this to test if hardlinks can be created
   permission java.nio.file.LinkPermission "hard";
   // needed by SSD detection tests in TestIOUtils (creates symlinks)
