@@ -128,12 +128,11 @@ public final class HNSWGraphWriter implements Accountable {
 
       hnsw.searchLayer(value, results, efConst, l, vectorValues);
       int maxConnections = l == 0 ? maxConn0 : maxConn;
-      NearestNeighbors neighbors = new NearestNeighbors(maxConnections, results.top());
+      FurthestNeighbors neighbors = new FurthestNeighbors(maxConnections, results.top());
       for (Neighbor n : results) {
         neighbors.insertWithOverflow(n);
       }
       for (Neighbor n : neighbors) {
-        // TODO: limit *total* num connections by pruning (shrinking)
         hnsw.connectNodes(l, docId, n.docId(), n.distance(), maxConnections);
       }
     }

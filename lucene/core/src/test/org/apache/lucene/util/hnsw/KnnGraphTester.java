@@ -74,7 +74,7 @@ public class KnnGraphTester {
     numDocs = 100_000;
     dim = 256;
     topK = 10;
-    numProbe = 500;
+    numProbe = 250;
     random = new Random();
   }
 
@@ -185,13 +185,17 @@ public class KnnGraphTester {
     }
     System.out.println("running " + numIters + " targets; topK=" + topK + ", numProbe=" + numProbe);
     long start = System.nanoTime();
+    long minVisited = Long.MAX_VALUE, maxVisited = 0, totalVisited = 0;
     try (Directory dir = FSDirectory.open(indexPath);
          DirectoryReader reader = DirectoryReader.open(dir)) {
       IndexSearcher searcher = new IndexSearcher(reader);
-      int result = 0;
       for (int i = 0; i < numIters; i++) {
         KnnGraphQuery query = new KnnGraphQuery(KNN_FIELD, targets[i], numProbe);
         results[i] = searcher.search(query, topK);
+        long numVisited = query.getVisitedCount();
+        minVisited = Math.min(minVisited, numVisited);
+        maxVisited = Math.max(maxVisited, numVisited);
+        totalVisited += numVisited;
         for (ScoreDoc scoreDoc : results[i].scoreDocs) {
           int id = searcher.doc(scoreDoc.doc).getFields().get(0).numericValue().intValue();
           scoreDoc.doc = id;
@@ -200,6 +204,7 @@ public class KnnGraphTester {
     }
     long elapsed = (System.nanoTime() - start) / 1_000_000; // ns -> ms
     System.out.println("completed " + numIters + " searches in " + elapsed + " ms: " + (1000 * numIters / elapsed) + " QPS");
+    System.out.println(" visited documents avg=" + (totalVisited / 1000) + " min=" + minVisited + " max=" + maxVisited);
     System.out.println("checking results");
     checkResults(targets, results);
   }

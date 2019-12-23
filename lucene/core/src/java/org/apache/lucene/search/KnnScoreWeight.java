@@ -18,6 +18,7 @@
 package org.apache.lucene.search;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.index.LeafReaderContext;
@@ -32,6 +33,7 @@ class KnnScoreWeight extends ConstantScoreWeight {
   private final ScoreMode scoreMode;
   private final float[] queryVector;
   private final int ef;
+  private AtomicLong visitedCounter;
 
   KnnScoreWeight(Query query, float score, ScoreMode scoreMode, String field, float[] queryVector, int ef) {
     super(query, score);
@@ -70,6 +72,7 @@ class KnnScoreWeight extends ConstantScoreWeight {
       @Override
       public Scorer get(long leadCost) throws IOException {
         Neighbors neighbors = hnswReader.searchNeighbors(queryVector, ef, vectorValues);
+        visitedCounter.addAndGet(hnswReader.getVisitedCount());
         return new Scorer(weight) {
 
           int doc = -1;
@@ -92,6 +95,7 @@ class KnnScoreWeight extends ConstantScoreWeight {
 
               @Override
               public int advance(int target) throws IOException {
+                // FIXME - this is not iterating in docid order!
                 if (target > size || neighbors.size() == 0) {
                   doc = NO_MORE_DOCS;
                   score = 0.0f;
@@ -110,6 +114,7 @@ class KnnScoreWeight extends ConstantScoreWeight {
                     switch (fi.getVectorDistFunc()) {
                       case MANHATTAN:
                       case EUCLIDEAN:
+                        // is it necessary to normalize these scores?
                         score = 1.0f / (next.distance() / numDimensions + 0.01f);
                         break;
                       case COSINE:
@@ -157,5 +162,13 @@ class KnnScoreWeight extends ConstantScoreWeight {
   @Override
   public boolean isCacheable(LeafReaderContext ctx) {
     return true;
+  }
+
+  public void setVisitedCounter(AtomicLong counter) {
+    visitedCounter = counter;
+  }
+
+  public long getVisitedCount() {
+    return visitedCounter.get();
   }
 }
