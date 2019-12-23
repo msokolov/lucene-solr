@@ -71,7 +71,7 @@ public class KnnGraphTester {
 
   public KnnGraphTester() {
     // set defaults
-    numDocs = 10_000;
+    numDocs = 100_000;
     dim = 256;
     topK = 10;
     numProbe = 500;
@@ -310,7 +310,7 @@ public class KnnGraphTester {
   private void create(String dataFile) throws IOException {
     generateRandomVectors(dim * numDocs);
     System.out.println("Generated " + numDocs + " random vectors");
-    computeNearest();
+    //computeNearest();
     writeDataFile(dataFile);
   }
 
@@ -326,9 +326,11 @@ public class KnnGraphTester {
         vectors[i] = din.readFloat();
       }
       nabors = new int[numDocs * topK];
+      /*
       for (int i = 0; i < nabors.length; i++) {
         nabors[i] = din.readInt();
       }
+      */
     }
   }
 
@@ -342,9 +344,11 @@ public class KnnGraphTester {
       for (int i = 0; i < vectors.length; i++) {
         dout.writeFloat(vectors[i]);
       }
+      /*
       for (int i = 0; i < nabors.length; i++) {
         dout.writeInt(nabors[i]);
       }
+      */
     }
   }
 
