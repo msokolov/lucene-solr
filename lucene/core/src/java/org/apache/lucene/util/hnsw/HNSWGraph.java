@@ -70,8 +70,6 @@ public final class HNSWGraph implements Accountable {
       candidates.add(n);
       visited.add(n.docId());
     }
-    // We want to efficiently pop the best (nearest, least distance) candidate, so use NearestNeighbors,
-    // but we don't want to overflow the heap and lose the best candidate!
     Neighbor f = results.top();
     while (candidates.size() > 0) {
       Neighbor c = candidates.pollFirst();

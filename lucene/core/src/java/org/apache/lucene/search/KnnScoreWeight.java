@@ -95,7 +95,6 @@ class KnnScoreWeight extends ConstantScoreWeight {
 
               @Override
               public int advance(int target) throws IOException {
-                // FIXME - this is not iterating in docid order!
                 if (target > size || neighbors.size() == 0) {
                   doc = NO_MORE_DOCS;
                   score = 0.0f;
