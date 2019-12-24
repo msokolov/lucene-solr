@@ -64,20 +64,20 @@ public final class HNSWGraph implements Accountable {
 
     Layer layer = layers.get(level);
     TreeSet<Neighbor> candidates = new TreeSet<>();
-    for (Neighbor n : results) {
-      // TODO: candidates should get neighbors of neighbors
-      candidates.add(n);
-    }
     // set of docids that have been visited by search on this layer, used to avoid backtracking
     Set<Integer> visited = new HashSet<>();
+    for (Neighbor n : results) {
+      candidates.add(n);
+      visited.add(n.docId());
+    }
     // We want to efficiently pop the best (nearest, least distance) candidate, so use NearestNeighbors,
     // but we don't want to overflow the heap and lose the best candidate!
+    Neighbor f = results.top();
     while (candidates.size() > 0) {
       Neighbor c = candidates.pollFirst();
-      Neighbor f = results.top();
       assert c.isDeferred() == false;
       assert f.isDeferred() == false;
-      if (c.distance() > f.distance()) {
+      if (c.distance() > f.distance() && results.size() >= ef) {
         break;
       }
       for (Neighbor e : layer.getFriends(c.docId())) {
