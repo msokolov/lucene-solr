@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.lucene.codecs.VectorValues;
 import org.apache.lucene.index.BinaryDocValues;
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.Fields;
@@ -441,6 +442,11 @@ public class TestDocSet extends SolrTestCase {
 
       @Override
       public PointValues getPointValues(String field) {
+        return null;
+      }
+
+      @Override
+      public VectorValues getVectorValues(String field) {
         return null;
       }
 

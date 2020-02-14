@@ -165,6 +165,14 @@ final class SegmentMerger {
       mergeState.infoStream.message("SM", ((t1-t0)/1000000) + " msec to merge points [" + numMerged + " docs]");
     }
 
+    if (mergeState.infoStream.isEnabled("SM")) {
+      t0 = System.nanoTime();
+    }
+    if (mergeState.infoStream.isEnabled("SM")) {
+      long t1 = System.nanoTime();
+      mergeState.infoStream.message("SM", ((t1-t0)/1000000) + " msec to merge vector values [" + numMerged + " docs]");
+    }
+
     if (mergeState.mergeFieldInfos.hasVectors()) {
       if (mergeState.infoStream.isEnabled("SM")) {
         t0 = System.nanoTime();

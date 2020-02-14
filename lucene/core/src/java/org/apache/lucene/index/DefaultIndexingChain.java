@@ -35,6 +35,8 @@ import org.apache.lucene.codecs.NormsFormat;
 import org.apache.lucene.codecs.NormsProducer;
 import org.apache.lucene.codecs.PointsFormat;
 import org.apache.lucene.codecs.PointsWriter;
+import org.apache.lucene.codecs.VectorsFormat;
+import org.apache.lucene.codecs.VectorsWriter;
 import org.apache.lucene.document.FieldType;
 import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.Sort;
@@ -208,7 +210,13 @@ final class DefaultIndexingChain extends DocConsumer {
     if (infoStream.isEnabled("IW")) {
       infoStream.message("IW", ((System.nanoTime()-t0)/1000000) + " msec to write points");
     }
-    
+
+    t0 = System.nanoTime();
+    writeVectors(state, sortMap);
+    if (docState.infoStream.isEnabled("IW")) {
+      docState.infoStream.message("IW", ((System.nanoTime()-t0)/1000000) + " msec to write vectors");
+    }
+
     // it's possible all docs hit non-aborting exceptions...
     t0 = System.nanoTime();
     storedFieldsConsumer.finish(maxDoc);
@@ -296,6 +304,49 @@ final class DefaultIndexingChain extends DocConsumer {
         IOUtils.close(pointsWriter);
       } else {
         IOUtils.closeWhileHandlingException(pointsWriter);
+      }
+    }
+  }
+
+  /**
+   * Writes all buffered vectors.
+   */
+  private void writeVectors(SegmentWriteState state, Sorter.DocMap sortMap) throws IOException {
+    VectorsWriter vectorsWriter = null;
+    boolean success = false;
+    try {
+      for (int i = 0; i < fieldHash.length; i++) {
+        PerField perField = fieldHash[i];
+        while (perField != null) {
+          if (perField.vectorValuesWriter != null) {
+            if (perField.fieldInfo.getVectorDimension() == 0) {
+              // BUG
+              throw new AssertionError("segment=" + state.segmentInfo + ": field=\"" + perField.fieldInfo.name + "\" has no vectors but wrote them");
+            }
+            if (vectorsWriter == null) {
+              // lazy init
+              VectorsFormat fmt = state.segmentInfo.getCodec().vectorsFormat();
+              if (fmt == null) {
+                throw new IllegalStateException("field=\"" + perField.fieldInfo.name + "\" was indexed as vectors but codec does not support vectors");
+              }
+              vectorsWriter = fmt.fieldsWriter(state);
+            }
+
+            perField.vectorValuesWriter.flush(state, sortMap, vectorsWriter);
+            perField.vectorValuesWriter = null;
+          } else if (perField.fieldInfo.getVectorDimension() != 0) {
+            // BUG
+            throw new AssertionError("segment=" + state.segmentInfo + ": field=\"" + perField.fieldInfo.name + "\" has vectors but did not write them");
+          }
+          perField = perField.next;
+        }
+      }
+      success = true;
+    } finally {
+      if (success) {
+        IOUtils.close(vectorsWriter);
+      } else {
+        IOUtils.closeWhileHandlingException(vectorsWriter);
       }
     }
   }
@@ -543,6 +594,12 @@ final class DefaultIndexingChain extends DocConsumer {
       }
       indexPoint(docID, fp, field);
     }
+    if (fieldType.vectorDimension() != 0) {
+      if (fp == null) {
+        fp = getOrAddField(fieldName, fieldType, false);
+      }
+      indexVector(fp, field);
+    }
     
     return fieldCount;
   }
@@ -703,6 +760,26 @@ final class DefaultIndexingChain extends DocConsumer {
     }
   }
 
+  /**
+   * Called from processDocument to index one field's vector
+   */
+  private void indexVector(PerField fp, IndexableField field) throws IOException {
+    int numDimensions = field.fieldType().vectorDimension();
+
+    // Record dimensions and distance function for this field; this setter will throw IllegalArgExc if
+    // the dimensions or distance function were already set to something different:
+    if (fp.fieldInfo.getVectorDimension() == 0) {
+      fieldInfos.globalFieldNumbers.setVectorProps(fp.fieldInfo.number, fp.fieldInfo.name, numDimensions);
+    }
+    fp.fieldInfo.setVectorDimension(numDimensions);
+    if (fp.vectorValuesWriter == null) {
+      fp.vectorValuesWriter = new VectorValuesWriter(fp.fieldInfo, bytesUsed);
+    }
+
+    int docID = docState.docID;
+    fp.vectorValuesWriter.addValue(docID, field.binaryValue());
+  }
+
   /** Returns a previously created {@link PerField}, or null
    *  if this field name wasn't seen yet. */
   private PerField getPerField(String name) {
@@ -790,6 +867,9 @@ final class DefaultIndexingChain extends DocConsumer {
 
     // Non-null if this field ever had points in this segment:
     PointValuesWriter pointValuesWriter;
+
+    // Non-null if this field ever had vectors in this segment.
+    VectorValuesWriter vectorValuesWriter;
 
     /** We use this to know when a PerField is seen for the
      *  first time in the current document. */

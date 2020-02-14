@@ -210,6 +210,7 @@ public class FieldInfos implements Iterable<FieldInfo> {
     return hasPointValues;
   }
 
+  /** Returns true if any fields have VectorValues. */
   public boolean hasVectorValues() {
     return hasVectorValues;
   }

@@ -114,6 +114,9 @@ public interface IndexableFieldType {
    */
   public int pointNumBytes();
 
+  /**
+   * The number of vector dimensions. If this is greater than zero, the field is indexed as a vector.
+   */
   public int vectorDimension();
 
   /**

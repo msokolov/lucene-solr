@@ -17,10 +17,8 @@
 
 package org.apache.lucene.document;
 
-import java.nio.ByteBuffer;
 
-import org.apache.lucene.index.DocValuesType;
-import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.codecs.VectorValues;
 
 /**
  * Per-document vector value; {@code float} array with indexed knn graph for fast approximate nearest neighbor search.
@@ -32,39 +30,24 @@ public final class VectorField extends Field {
    */
   public static final int MAX_DIMS = 2048;
 
-  private static FieldType fieldType(int dimensions) {
-    if (dimensions == 0) {
-      throw new IllegalArgumentException("VectorField does not support 0 dimensions.");
-    }
-    if (dimensions > MAX_DIMS) {
-      throw new IllegalArgumentException("VectorField does not support greater than " + MAX_DIMS + " dimensions.");
-    }
-
-    FieldType type = new FieldType();
-    type.setVectorDimension(dimensions);
-    type.setDocValuesType(DocValuesType.BINARY);
-    type.freeze();
-    return type;
-  }
-
   /**
    * Creates a new vector field.
    */
   public VectorField(String name, float[] vector) {
-    super(name, encode(vector), fieldType(vector.length));
+    super(name, VectorValues.encode(vector), fieldType(vector.length));
   }
 
-  public static BytesRef encode(float[] value) {
-    ByteBuffer buffer = ByteBuffer.allocate(Float.BYTES * value.length);
-    buffer.asFloatBuffer().put(value);
-    return new BytesRef(buffer.array());
-  }
+  private static FieldType fieldType(int dimension) {
+    if (dimension == 0) {
+      throw new IllegalArgumentException("VectorField does not support 0 dimensions.");
+    }
+    if (dimension > MAX_DIMS) {
+      throw new IllegalArgumentException("VectorField does not support greater than " + MAX_DIMS + " dimensions.");
+    }
 
-  public static float[] decode(BytesRef bytes) {
-    int numDims = bytes.length / Float.BYTES;
-    float[] value = new float[numDims];
-    ByteBuffer buffer = ByteBuffer.wrap(bytes.bytes, bytes.offset, bytes.length);
-    buffer.asFloatBuffer().get(value);
-    return value;
+    FieldType type = new FieldType();
+    type.setVectorDimension(dimension);
+    type.freeze();
+    return type;
   }
 }

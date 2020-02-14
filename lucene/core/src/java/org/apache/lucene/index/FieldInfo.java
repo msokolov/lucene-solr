@@ -20,6 +20,8 @@ package org.apache.lucene.index;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.lucene.document.VectorField;
+
 /**
  *  Access to the Field Info file that describes document fields and whether or
  *  not they are indexed. Each segment has a separate Field Info file. Objects
@@ -239,6 +241,23 @@ public final class FieldInfo {
   /** Return vector dimension */
   public int getVectorDimension() {
     return vectorDimension;
+  }
+
+  /** Record that this field is indexed with vectors, with the specified number of dimensions. */
+  public void setVectorDimension(int dimension) {
+    if (dimension < 0) {
+      throw new IllegalArgumentException("vector dimensions must be >= 0; got " + dimension);
+    }
+    if (dimension > VectorField.MAX_DIMS) {
+      throw new IllegalArgumentException("vector dimensions must be <= " + VectorField.MAX_DIMS + "); got " + dimension);
+    }
+    if (vectorDimension != 0 && vectorDimension != dimension) {
+      throw new IllegalArgumentException("cannot change vector dimensions from " + vectorDimension + " to " +
+          dimension + " for field=\"" + name + "\"");
+    }
+    this.vectorDimension = dimension;
+
+    assert checkConsistency();
   }
 
   /** Record that this field is indexed with docvalues, with the specified type */

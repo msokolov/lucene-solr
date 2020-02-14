@@ -30,12 +30,12 @@ import org.apache.lucene.codecs.PostingsFormat;
 import org.apache.lucene.codecs.SegmentInfoFormat;
 import org.apache.lucene.codecs.StoredFieldsFormat;
 import org.apache.lucene.codecs.TermVectorsFormat;
+import org.apache.lucene.codecs.VectorsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50CompoundFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50LiveDocsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50StoredFieldsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50StoredFieldsFormat.Mode;
 import org.apache.lucene.codecs.lucene50.Lucene50TermVectorsFormat;
-import org.apache.lucene.codecs.lucene60.Lucene60FieldInfosFormat;
 import org.apache.lucene.codecs.lucene60.Lucene60PointsFormat;
 import org.apache.lucene.codecs.lucene70.Lucene70SegmentInfoFormat;
 import org.apache.lucene.codecs.lucene80.Lucene80NormsFormat;
@@ -76,6 +76,7 @@ public class Lucene90Codec extends Codec {
   };
 
   private final StoredFieldsFormat storedFieldsFormat;
+  private final VectorsFormat vectorValuesFormat = new ExampleVectorsFormat();
 
   /**
    * Instantiates a new codec.
@@ -134,6 +135,11 @@ public class Lucene90Codec extends Codec {
   @Override
   public final PointsFormat pointsFormat() {
     return new Lucene60PointsFormat();
+  }
+
+  @Override
+  public VectorsFormat vectorsFormat() {
+    return vectorValuesFormat;
   }
 
   /** Returns the postings format that should be used for writing

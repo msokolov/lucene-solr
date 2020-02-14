@@ -30,6 +30,7 @@ import org.apache.lucene.codecs.NormsProducer;
 import org.apache.lucene.codecs.PointsReader;
 import org.apache.lucene.codecs.StoredFieldsReader;
 import org.apache.lucene.codecs.TermVectorsReader;
+import org.apache.lucene.codecs.VectorsReader;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.util.Bits;
@@ -245,6 +246,12 @@ public final class SegmentReader extends CodecReader {
   public PointsReader getPointsReader() {
     ensureOpen();
     return core.pointsReader;
+  }
+
+  @Override
+  public VectorsReader getVectorsReader() {
+    ensureOpen();
+    return core.vectorsReader;
   }
 
   @Override
