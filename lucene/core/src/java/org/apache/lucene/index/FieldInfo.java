@@ -54,6 +54,8 @@ public final class FieldInfo {
   private int pointIndexDimensionCount;
   private int pointNumBytes;
 
+  private int vectorDimension;
+
   // whether this field is used as the soft-deletes field
   private final boolean softDeletesField;
 
@@ -64,7 +66,8 @@ public final class FieldInfo {
    */
   public FieldInfo(String name, int number, boolean storeTermVector, boolean omitNorms, boolean storePayloads,
                    IndexOptions indexOptions, DocValuesType docValues, long dvGen, Map<String,String> attributes,
-                   int pointDimensionCount, int pointIndexDimensionCount, int pointNumBytes, boolean softDeletesField) {
+                   int pointDimensionCount, int pointIndexDimensionCount, int pointNumBytes,
+                   int vectorDimension, boolean softDeletesField) {
     this.name = Objects.requireNonNull(name);
     this.number = number;
     this.docValuesType = Objects.requireNonNull(docValues, "DocValuesType must not be null (field: \"" + name + "\")");
@@ -83,6 +86,7 @@ public final class FieldInfo {
     this.pointDimensionCount = pointDimensionCount;
     this.pointIndexDimensionCount = pointIndexDimensionCount;
     this.pointNumBytes = pointNumBytes;
+    this.vectorDimension = vectorDimension;
     this.softDeletesField = softDeletesField;
     assert checkConsistency();
   }
@@ -230,6 +234,11 @@ public final class FieldInfo {
   /** Return number of bytes per dimension */
   public int getPointNumBytes() {
     return pointNumBytes;
+  }
+
+  /** Return vector dimension */
+  public int getVectorDimension() {
+    return vectorDimension;
   }
 
   /** Record that this field is indexed with docvalues, with the specified type */

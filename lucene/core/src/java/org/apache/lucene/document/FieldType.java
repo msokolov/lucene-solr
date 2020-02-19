@@ -44,6 +44,7 @@ public class FieldType implements IndexableFieldType  {
   private int dimensionCount;
   private int indexDimensionCount;
   private int dimensionNumBytes;
+  private int vectorDimension;
   private Map<String, String> attributes;
 
   /**
@@ -62,6 +63,7 @@ public class FieldType implements IndexableFieldType  {
     this.dimensionCount = ref.pointDimensionCount();
     this.indexDimensionCount = ref.pointIndexDimensionCount();
     this.dimensionNumBytes = ref.pointNumBytes();
+    this.vectorDimension = ref.vectorDimension();
     if (ref.getAttributes() != null) {
       this.attributes = new HashMap<>(ref.getAttributes());
     }
@@ -349,6 +351,27 @@ public class FieldType implements IndexableFieldType  {
   @Override
   public int pointNumBytes() {
     return dimensionNumBytes;
+  }
+
+  @Override
+  public int vectorDimension() {
+    return vectorDimension;
+  }
+
+  /**
+   * Sets the vector dimension. Passing a value greater than zero will enable vector indexing.
+   */
+  public void setVectorDimension(int vectorDimension) {
+    if (vectorDimension < 0) {
+      throw new IllegalArgumentException("vector dimensions must be >= 0; got " + vectorDimension);
+    }
+
+    if (vectorDimension > VectorField.MAX_DIMS) {
+      throw new IllegalArgumentException("vector dimensions must be <=" + VectorField.MAX_DIMS
+          + " dimensions; got " + vectorDimension);
+    }
+
+    this.vectorDimension = vectorDimension;
   }
 
   /**
