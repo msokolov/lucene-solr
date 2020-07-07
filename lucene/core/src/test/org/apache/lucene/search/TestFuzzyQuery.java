@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import org.apache.lucene.analysis.MockAnalyzer;
 import org.apache.lucene.analysis.MockTokenizer;
@@ -406,7 +407,6 @@ public class TestFuzzyQuery extends LuceneTestCase {
   
   public void testGiga() throws Exception {
 
-    MockAnalyzer analyzer = new MockAnalyzer(random());
     Directory index = newDirectory();
     RandomIndexWriter w = new RandomIndexWriter(random(), index);
 
@@ -438,6 +438,7 @@ public class TestFuzzyQuery extends LuceneTestCase {
     assertEquals(1, hits.length);
     assertEquals("Giga byte", searcher.doc(hits[0].doc).get("field"));
     r.close();
+    w.close();
     index.close();
   }
   
@@ -531,6 +532,7 @@ public class TestFuzzyQuery extends LuceneTestCase {
       w.addDocument(doc);
     }
     DirectoryReader r = w.getReader();
+    w.close();
     //System.out.println("TEST: reader=" + r);
     IndexSearcher s = newSearcher(r);
     int iters = atLeast(200);
@@ -608,7 +610,7 @@ public class TestFuzzyQuery extends LuceneTestCase {
       }
     }
     
-    IOUtils.close(r, w, dir);
+    IOUtils.close(r, dir);
   }
 
   private static class TermAndScore implements Comparable<TermAndScore> {
@@ -714,8 +716,9 @@ public class TestFuzzyQuery extends LuceneTestCase {
     AtomicBoolean visited = new AtomicBoolean(false);
     q.visit(new QueryVisitor() {
       @Override
-      public void consumeTermsMatching(Query query, String field, ByteRunAutomaton a) {
+      public void consumeTermsMatching(Query query, String field, Supplier<ByteRunAutomaton> automaton) {
         visited.set(true);
+        ByteRunAutomaton a = automaton.get();
         assertMatches(a, "blob");
         assertMatches(a, "bolb");
         assertMatches(a, "blobby");

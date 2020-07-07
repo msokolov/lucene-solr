@@ -162,12 +162,15 @@ public class SystemCollectionCompatTest extends SolrCloudTestCase {
     }
     assertNotNull(overseerNode);
     LogWatcherConfig watcherCfg = new LogWatcherConfig(true, null, "WARN", 100);
+    @SuppressWarnings({"rawtypes"})
     LogWatcher watcher = LogWatcher.newRegisteredLogWatcher(watcherCfg, null);
 
     watcher.reset();
 
     // restart Overseer to trigger the back-compat check
-    log.info("Stopping Overseer Node: {} ({})", overseerNode.getNodeName(), overseerNode.getLocalPort());
+    if (log.isInfoEnabled()) {
+      log.info("Stopping Overseer Node: {} ({})", overseerNode.getNodeName(), overseerNode.getLocalPort());
+    }
     cluster.stopJettySolrRunner(overseerNode);
     log.info("Waiting for new overseer election...");
     TimeOut timeOut = new TimeOut(30, TimeUnit.SECONDS, cloudManager.getTimeSource());
@@ -199,11 +202,15 @@ public class SystemCollectionCompatTest extends SolrCloudTestCase {
           continue;
         }
         if (doc.getFieldValue("message").toString().contains("re-indexing")) {
-          log.info("Found re-indexing message: {}", doc.getFieldValue("message"));
+          if (log.isInfoEnabled()) {
+            log.info("Found re-indexing message: {}", doc.getFieldValue("message"));
+          }
           foundWarning = true;
         }
         if (doc.getFieldValue("message").toString().contains("timestamp")) {
-          log.info("Found timestamp message: {}", doc.getFieldValue("message"));
+          if (log.isInfoEnabled()) {
+            log.info("Found timestamp message: {}", doc.getFieldValue("message"));
+          }
           foundSchemaWarning = true;
         }
       }

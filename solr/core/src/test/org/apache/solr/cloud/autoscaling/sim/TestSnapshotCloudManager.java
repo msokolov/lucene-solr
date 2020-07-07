@@ -121,10 +121,11 @@ public class TestSnapshotCloudManager extends SolrCloudTestCase {
   public void testRedaction() throws Exception {
     Path tmpPath = createTempDir();
     File tmpDir = tmpPath.toFile();
-    SnapshotCloudManager snapshotCloudManager = new SnapshotCloudManager(realManager, null);
     Set<String> redacted = new HashSet<>(realManager.getClusterStateProvider().getLiveNodes());
-    redacted.addAll(realManager.getClusterStateProvider().getClusterState().getCollectionStates().keySet());
-    snapshotCloudManager.saveSnapshot(tmpDir, true, true);
+    try (SnapshotCloudManager snapshotCloudManager = new SnapshotCloudManager(realManager, null)) {
+      redacted.addAll(realManager.getClusterStateProvider().getClusterState().getCollectionStates().keySet());
+      snapshotCloudManager.saveSnapshot(tmpDir, true, true);
+    }
     for (String key : SnapshotCloudManager.REQUIRED_KEYS) {
       File src = new File(tmpDir, key + ".json");
       assertTrue(src.toString() + " doesn't exist", src.exists());
@@ -185,6 +186,7 @@ public class TestSnapshotCloudManager extends SolrCloudTestCase {
     }
   }
 
+  @SuppressWarnings({"unchecked"})
   private static void assertNodeStateProvider(SolrCloudManager oneMgr, SolrCloudManager twoMgr, String... ignorableNodeValues) throws Exception {
     NodeStateProvider one = oneMgr.getNodeStateProvider();
     NodeStateProvider two = twoMgr.getNodeStateProvider();

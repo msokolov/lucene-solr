@@ -340,7 +340,7 @@ public class TestIndexWriterExceptions extends LuceneTestCase {
 
     @Override
     public void apply(String name) {
-      if (doFail && name.equals("DocumentsWriterPerThread addDocument start"))
+      if (doFail && name.equals("DocumentsWriterPerThread addDocuments start"))
         throw new RuntimeException("intentionally failing");
     }
   }
@@ -596,7 +596,7 @@ public class TestIndexWriterExceptions extends LuceneTestCase {
     // only one flush should fail:
     assertFalse(hitError);
     hitError = true;
-    assertTrue(writer.deleter.isClosed());
+    assertTrue(writer.isDeleterClosed());
     assertTrue(writer.isClosed());
     assertFalse(DirectoryReader.indexExists(dir));
 
@@ -1291,7 +1291,7 @@ public class TestIndexWriterExceptions extends LuceneTestCase {
           } catch (RuntimeException e) {
             assertTrue(e.getMessage().startsWith(FailOnTermVectors.EXC_MSG));
             // This is an aborting exception, so writer is closed:
-            assertTrue(w.deleter.isClosed());
+            assertTrue(w.isDeleterClosed());
             assertTrue(w.isClosed());
             dir.close();
             continue iters;

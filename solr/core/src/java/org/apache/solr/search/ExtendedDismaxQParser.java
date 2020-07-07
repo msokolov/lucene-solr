@@ -52,6 +52,7 @@ import org.apache.lucene.search.spans.SpanQuery;
 import org.apache.lucene.util.Version;
 import org.apache.solr.analysis.TokenizerChain;
 import org.apache.solr.common.SolrException;
+import org.apache.solr.common.SolrException.ErrorCode;
 import org.apache.solr.common.params.DisMaxParams;
 import org.apache.solr.common.params.SolrParams;
 import org.apache.solr.common.util.NamedList;
@@ -413,7 +414,7 @@ public class ExtendedDismaxQParser extends QParser {
       String mmSpec = config.minShouldMatch;
 
       if (foundOperators(clauses, config.lowercaseOperators)) {
-        mmSpec = params.get(DisMaxParams.MM, "0%"); // Use provided mm spec if present, otherwise turn off mm processing
+        mmSpec = config.solrParams.get(DisMaxParams.MM, "0%"); // Use provided mm spec if present, otherwise turn off mm processing
       }
       query = SolrPluginUtils.setMinShouldMatch((BooleanQuery)query, mmSpec, config.mmAutoRelax);
     }
@@ -1610,7 +1611,7 @@ public class ExtendedDismaxQParser extends QParser {
         str=wildcard.substring(0,wildcard.length()-1);
       }
       else {
-        throw new RuntimeException("dynamic field name must start or end with *");
+        throw new SolrException(ErrorCode.BAD_REQUEST, "dynamic field name must start or end with *");
       }
     }
     

@@ -162,7 +162,7 @@ public class FuzzyQuery extends MultiTermQuery {
       if (maxEdits == 0 || prefixLength >= term.text().length()) {
         visitor.consumeTerms(this, term);
       } else {
-        visitor.consumeTermsMatching(this, term.field(), getAutomata().runAutomaton);
+        visitor.consumeTermsMatching(this, term.field(), () -> getAutomata().runAutomaton);
       }
     }
   }

@@ -76,6 +76,7 @@ public class DirectoryFactoryTest extends SolrTestCase {
     doTestGetDataHome(ByteBuffersDirectoryFactory.class);
   }
   
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private void doTestGetDataHome(Class<? extends DirectoryFactory> directoryFactoryClass) throws Exception {
     NodeConfig config = loadNodeConfig("/solr/solr-solrDataHome.xml");
     CoreContainer cc = new CoreContainer(config);
@@ -121,6 +122,6 @@ public class DirectoryFactoryTest extends SolrTestCase {
 
   private NodeConfig loadNodeConfig(String config) throws Exception {
     InputStream is = DirectoryFactoryTest.class.getResourceAsStream(config);
-    return SolrXmlConfig.fromInputStream(loader, is);
+    return SolrXmlConfig.fromInputStream(solrHome, is, new Properties());
   }
 }

@@ -59,6 +59,7 @@ import org.apache.solr.common.util.TimeSource;
 import org.apache.solr.common.util.Utils;
 import org.apache.solr.util.TimeOut;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
@@ -78,6 +79,13 @@ public class TestPolicyCloud extends SolrCloudTestCase {
     configureCluster(5)
         .addConfig("conf", configset("cloud-minimal"))
         .configure();
+  }
+
+  @Before
+  public void before() throws Exception {
+    // remove default policy
+    String commands =  "{set-cluster-policy : []}";
+    cluster.getSolrClient().request(AutoScalingRequest.create(SolrRequest.METHOD.POST, commands));
   }
 
   @After
@@ -143,6 +151,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
         "    ]" +
         "  }" +
         "}";
+    @SuppressWarnings({"unchecked"})
     AutoScalingConfig config = new AutoScalingConfig((Map<String, Object>) Utils.fromJSONString(autoScaleJson));
     AtomicInteger count = new AtomicInteger(0);
     try (SolrCloudManager cloudManager = new SolrClientCloudManager(new ZkDistributedQueueFactory(cluster.getZkClient()), cluster.getSolrClient())) {
@@ -158,7 +167,9 @@ public class TestPolicyCloud extends SolrCloudTestCase {
 
       for (Row row : session.getSortedNodes()) {
         Object val = row.getVal(Type.TOTALDISK.tagName, null);
-        log.info("node: {} , totaldisk : {}, freedisk : {}", row.node, val, row.getVal("freedisk",null));
+        if (log.isInfoEnabled()) {
+          log.info("node: {} , totaldisk : {}, freedisk : {}", row.node, val, row.getVal("freedisk", null));
+        }
         assertTrue(val != null);
 
       }
@@ -341,6 +352,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
         "      {'metrics:abc':'overseer', 'replica':0}" +
         "    ]" +
         "}";
+    @SuppressWarnings({"rawtypes"})
     SolrRequest req = AutoScalingRequest.create(SolrRequest.METHOD.POST, setClusterPolicyCommand);
     try {
       solrClient.request(req);
