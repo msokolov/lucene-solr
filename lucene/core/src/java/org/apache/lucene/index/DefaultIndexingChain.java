@@ -159,7 +159,6 @@ final class DefaultIndexingChain extends DocConsumer {
       public FieldInfos getFieldInfos() {
         return fieldInfos.finish();
       }
-
     };
   }
 
@@ -213,8 +212,8 @@ final class DefaultIndexingChain extends DocConsumer {
 
     t0 = System.nanoTime();
     writeVectors(state, sortMap);
-    if (docState.infoStream.isEnabled("IW")) {
-      docState.infoStream.message("IW", ((System.nanoTime()-t0)/1000000) + " msec to write vectors");
+    if (infoStream.isEnabled("IW")) {
+      infoStream.message("IW", ((System.nanoTime()-t0)/1000000) + " msec to write vectors");
     }
 
     // it's possible all docs hit non-aborting exceptions...
@@ -598,7 +597,7 @@ final class DefaultIndexingChain extends DocConsumer {
       if (fp == null) {
         fp = getOrAddField(fieldName, fieldType, false);
       }
-      indexVector(fp, field);
+      indexVector(docID, fp, field);
     }
     
     return fieldCount;
@@ -763,7 +762,7 @@ final class DefaultIndexingChain extends DocConsumer {
   /**
    * Called from processDocument to index one field's vector
    */
-  private void indexVector(PerField fp, IndexableField field) throws IOException {
+  private void indexVector(int docId, PerField fp, IndexableField field) throws IOException {
     int numDimensions = field.fieldType().vectorDimension();
 
     // Record dimensions and distance function for this field; this setter will throw IllegalArgExc if
@@ -776,8 +775,7 @@ final class DefaultIndexingChain extends DocConsumer {
       fp.vectorValuesWriter = new VectorValuesWriter(fp.fieldInfo, bytesUsed);
     }
 
-    int docID = docState.docID;
-    fp.vectorValuesWriter.addValue(docID, field.binaryValue());
+    fp.vectorValuesWriter.addValue(docId, field.binaryValue());
   }
 
   /** Returns a previously created {@link PerField}, or null

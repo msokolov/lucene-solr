@@ -36,10 +36,10 @@ import org.apache.lucene.codecs.lucene50.Lucene50LiveDocsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50StoredFieldsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50StoredFieldsFormat.Mode;
 import org.apache.lucene.codecs.lucene50.Lucene50TermVectorsFormat;
-import org.apache.lucene.codecs.lucene60.Lucene60PointsFormat;
-import org.apache.lucene.codecs.lucene70.Lucene70SegmentInfoFormat;
 import org.apache.lucene.codecs.lucene80.Lucene80NormsFormat;
 import org.apache.lucene.codecs.lucene84.Lucene84PostingsFormat;
+import org.apache.lucene.codecs.lucene86.Lucene86PointsFormat;
+import org.apache.lucene.codecs.lucene86.Lucene86SegmentInfoFormat;
 import org.apache.lucene.codecs.perfield.PerFieldDocValuesFormat;
 import org.apache.lucene.codecs.perfield.PerFieldPostingsFormat;
 
@@ -56,7 +56,7 @@ import org.apache.lucene.codecs.perfield.PerFieldPostingsFormat;
 public class Lucene90Codec extends Codec {
   private final TermVectorsFormat vectorsFormat = new Lucene50TermVectorsFormat();
   private final FieldInfosFormat fieldInfosFormat = new Lucene90FieldInfosFormat();
-  private final SegmentInfoFormat segmentInfosFormat = new Lucene70SegmentInfoFormat();
+  private final SegmentInfoFormat segmentInfosFormat = new Lucene86SegmentInfoFormat();
   private final LiveDocsFormat liveDocsFormat = new Lucene50LiveDocsFormat();
   private final CompoundFormat compoundFormat = new Lucene50CompoundFormat();
   private final PostingsFormat defaultFormat;
@@ -134,7 +134,7 @@ public class Lucene90Codec extends Codec {
 
   @Override
   public final PointsFormat pointsFormat() {
-    return new Lucene60PointsFormat();
+    return new Lucene86PointsFormat();
   }
 
   @Override

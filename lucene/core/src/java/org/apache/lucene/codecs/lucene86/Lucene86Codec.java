@@ -31,6 +31,7 @@ import org.apache.lucene.codecs.PostingsFormat;
 import org.apache.lucene.codecs.SegmentInfoFormat;
 import org.apache.lucene.codecs.StoredFieldsFormat;
 import org.apache.lucene.codecs.TermVectorsFormat;
+import org.apache.lucene.codecs.VectorsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50CompoundFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50LiveDocsFormat;
 import org.apache.lucene.codecs.lucene50.Lucene50StoredFieldsFormat;
@@ -174,5 +175,10 @@ public class Lucene86Codec extends Codec {
   @Override
   public final NormsFormat normsFormat() {
     return normsFormat;
+  }
+
+  @Override
+  public VectorsFormat vectorsFormat() {
+    return VectorsFormat.EMPTY;
   }
 }
